@@ -26,7 +26,8 @@ int main() {
         }
     }
 
-    point vec{1, 2, 3};
-    point vect = vec/3.0;
-    std::cout<<vect.x<<" "<<vect[2]<<std::endl;
+    point vec{1.0, 2.0, 3.0};
+    //point vect = vec/3.0;
+    //std::cout<<vect.x<<" "<<vect[2]<<std::endl;
+    std::cout<<identity(vec);
 }
