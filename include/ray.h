@@ -3,6 +3,9 @@
 #include "vec.h"
 #include "color.h"
 #include <cmath>
+#include <array>
+#include "hit.h"
+#include "utility.h"
 
 namespace pzyy {
 class ray {
@@ -33,15 +36,16 @@ double hitSphere(const ray& r, const point& SphereCenter, double radius) {
     if(intersection < 0.0f) {
         return -1.0;
     }
-    return (-b - std::sqrt(intersection))/(2.0*a);
+    return (-b - std::sqrt(intersection))/(2.0*a);   //get near intersection point
 }
 
-color ray_color(const ray& r) {
-    /*ray param of t*/  
-    auto t = hitSphere(r, point(0, 0, -1), 0.5);
-    if(t > 0.0) {
-        //sphereNormal every component [-1.0, 1.0]
-        vec3f sphereNormal = identity(r.at(t) - point(0, 0, -1));
+color ray_color(const ray& r, const hitList& world) {
+    hitRecord hitRec = {0};
+
+    bool intersection = world.hitfunc(r, 0, infinity, hitRec);
+    if(intersection)
+    {   
+        vec3f sphereNormal = identity(hitRec.normal);
         return 0.5*color(sphereNormal.x+1, sphereNormal.y+1, sphereNormal.z+1);
     }
     /*calculate backfround color*/
@@ -49,7 +53,6 @@ color ray_color(const ray& r) {
     vec3f norm = identity(r.director());
     double lerp = (norm.y + 1)/2.0f;
     color tmp = (1 - lerp)*color(1.0, 1.0,1.0) + lerp*color(0.5, 0.7, 1.0);
-    //calculate color
 
     return tmp;
 }
