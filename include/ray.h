@@ -20,41 +20,39 @@ class ray {
     vec3f _director;
 };
 
-/*
-1.ray 用于获取origin和director
-2.sphere center 圆心
-3.radius 半径
-*/
-double hitSphere(const ray& r, const point& SphereCenter, double radius) {
-    //origin - center 
-    vec3f co = r.orign() - SphereCenter;
-    //squre root b^2-4ac
-    double a = dot(r.director(), r.director());
-    double b = 2.0*dot(r.director(), co);
-    double c = dot(co, co)-radius*radius;
-    double intersection = b*b-4*a*c;
-    if(intersection < 0.0f) {
-        return -1.0;
+//用当前交点获取漫反射随机一点
+inline point randomPointSphere(hitRecord& hitRec) {
+    while(1) {
+        //cube中任取内接圆中的一点
+        point randomPoint(randomRangeDouble(-1, 1), randomRangeDouble(-1, 1), randomRangeDouble(-1, 1));
+        if(randomPoint.length() < 1.0) {
+            //漫反射点在世界坐标系下的位置
+            point target = hitRec.p + (hitRec.normal + randomPoint);
+            return target;
+        }
     }
-    return (-b - std::sqrt(intersection))/(2.0*a);   //get near intersection point
 }
 
-color ray_color(const ray& r, const hitList& world) {
+
+color ray_color(const ray& r, const hitList& world, int depth) {
     hitRecord hitRec = {0};
+
+    if(!depth) {
+        return color(0, 0, 0);
+    }
 
     bool intersection = world.hitfunc(r, 0, infinity, hitRec);
     if(intersection)
     {   
-        vec3f sphereNormal = identity(hitRec.normal);
-        return 0.5*color(sphereNormal.x+1, sphereNormal.y+1, sphereNormal.z+1);
+        //光线与物体交点产生的新光线
+        ray diffuseRay(hitRec.p, randomPointSphere(hitRec) - hitRec.p);
+        return 0.5 * ray_color(diffuseRay, world, depth-1);
     }
     /*calculate backfround color*/
     //identity of ray director(-1.0 < y < 1.0)
     vec3f norm = identity(r.director());
     double lerp = (norm.y + 1)/2.0f;
-    color tmp = (1 - lerp)*color(1.0, 1.0,1.0) + lerp*color(0.5, 0.7, 1.0);
-
-    return tmp;
+    return color((1 - lerp)*color(1.0, 1.0,1.0) + lerp*color(0.5, 0.7, 1.0));
 }
 
 }

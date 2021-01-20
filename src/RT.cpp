@@ -24,17 +24,8 @@ int main() {
 
     //camera
     camera cam;
-#if 0
-    //camera
-    pzyy::point origin; //(0, 0, 0)
-    int viewport_height = 2;
-    int viewport_width = static_cast<int>(viewport_height * aspect_ratio);
-    int focus = 1;
-
-    pzyy::point vertical(0, viewport_height, 0);
-    pzyy::point horizontal(viewport_width, 0, 0);
-    pzyy::point low_left_conor = origin - horizontal/2.0 - vertical/2.0 - pzyy::vec3f(0, 0, focus);
-#endif
+    //ray reflect times
+    int depth = 10;
 
     // Render
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -43,10 +34,10 @@ int main() {
             color pixelColor;
             for(int s = 0; s < 100; s++) {
                 //一个像素点中取多个采样值
-                double u = static_cast<double>(i + random_double())/(image_width-1);
-                double v = static_cast<double>(j + random_double())/(image_height-1);
+                double u = static_cast<double>(i + randomDouble())/(image_width-1);
+                double v = static_cast<double>(j + randomDouble())/(image_height-1);
                 pzyy::ray r = cam.getRay(u, v);
-                pixelColor = pixelColor + ray_color(r, world);
+                pixelColor = pixelColor + ray_color(r, world, depth);
             }
             write_color(pixelColor, samplesPixel);
         }

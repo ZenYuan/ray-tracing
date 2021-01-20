@@ -53,7 +53,7 @@ bool sphere::hitfunc(const ray& r, double tmin, double tmax, hitRecord& hitRec) 
         
         hitRec.t = root;
         hitRec.p = r.at(root);
-        hitRec.normal = hitRec.p - _center;
+        hitRec.normal = identity(hitRec.p - _center);
         return true;
     }
 
