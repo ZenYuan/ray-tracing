@@ -4,7 +4,7 @@
 #include <limits>
 #include <random>
 #include <cstdlib>
-#include <vec.h>
+#include "vec.h"
 
 const double infinity = std::numeric_limits<double>::infinity();
 
@@ -24,6 +24,12 @@ inline pzyy::point randomPointSphere() {
         }
     }
 }
+
+//获取漫反射点外接矩形圆中随机一点
+inline pzyy::point randomPoint() {
+    return identity(randomPointSphere());
+}
+
 
 
 #endif

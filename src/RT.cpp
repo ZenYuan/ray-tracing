@@ -1,12 +1,33 @@
-//#include <iostream>
-//#include "vec.h"
+#include "header.h"
 #include "color.h"
-#include "ray.h"
-#include "hit.h"
-#include "sphere.h"
-#include "utility.h"
-#include "camera.h"
 using namespace pzyy;
+
+color ray_color(const ray& r, const hitList& world, int depth) {
+    hitRecord hitRec = {0};
+
+    if(!depth) {
+        return color(0, 0, 0);
+    }
+
+    //TODO：shadow acne problem not fix
+    bool intersection = world.hitfunc(r, 0, infinity, hitRec);
+    if(intersection)
+    {
+        ray scattered;
+        color attenuation;
+        //光线与物体交点产生的反射光线
+        if(hitRec.matPtr->scatter(r, hitRec, attenuation, scattered)) {
+            return attenuation * ray_color(scattered, world, depth-1);
+        }
+        //光线全部被吸收
+        return color(0, 0, 0);
+    }
+    /*calculate backfround color*/
+    //identity of ray direction(-1.0 < y < 1.0)
+    vec3f norm = identity(r.direction());
+    double lerp = (norm.y + 1)/2.0f;
+    return color((1 - lerp)*color(1.0, 1.0,1.0) + lerp*color(0.5, 0.7, 1.0));
+}
 
 int main() {
     // Image
@@ -15,12 +36,20 @@ int main() {
     const int image_height = static_cast<int>(image_width/aspect_ratio);
 
     //samples
-    int samplesPixel = 100; 
+    int samplesPixel = 100;
+
+    //matrial
+    auto matrialGround = std::make_shared<lambertain>(color(0.8, 0.8, 0.0));
+    auto matrialCenter = std::make_shared<lambertain>(color(0.7, 0.3, 0.3));
+    auto matrialLeft = std::make_shared<Metal>(color(0.8, 0.8, 0.8));
+    auto matrialRight = std::make_shared<Metal>(color(0.8, 0.6, 0.2));
 
     //objects
-    pzyy::hitList world;
-    world.add(std::make_shared<sphere>(0.5, point(0.0, 0.0, -1.0)));
-    world.add(std::make_shared<sphere>(100, point(0.0, -100.5, -1.0)));
+    hitList world;
+    world.add(std::make_shared<sphere>(100, point(0.0, -100.5, -1.0), matrialGround));
+    world.add(std::make_shared<sphere>(0.5, point(0.0, 0.0, -1.0), matrialCenter));
+    world.add(std::make_shared<sphere>(0.5, point(-1.0, 0.0, -1.0), matrialLeft));
+    world.add(std::make_shared<sphere>(0.5, point(1.0, -0.0, -1.0), matrialRight));
 
     //camera
     camera cam;
@@ -36,7 +65,7 @@ int main() {
                 //一个像素点中取多个采样值
                 double u = static_cast<double>(i + randomDouble())/(image_width-1);
                 double v = static_cast<double>(j + randomDouble())/(image_height-1);
-                pzyy::ray r = cam.getRay(u, v);
+                ray r = cam.getRay(u, v);
                 pixelColor = pixelColor + ray_color(r, world, depth);
             }
             write_color(pixelColor, samplesPixel);

@@ -33,6 +33,7 @@ class Vec<3, T> {
  public:
     T& operator[](const int i) { return m[i];}
     double length() const { return std::sqrt(x*x + y*y + z*z); }
+    bool nearZero() { const auto s = 1e-8; if(std::fabs(x) < s && std::fabs(y) < s && std::fabs(z) < s) { return true; } return false;}
 };
 
 
@@ -80,8 +81,13 @@ vec3<T> operator-(const vec3<T>& u, const vec3<T>& v) {
 }
 
 template <typename T>
-vec3<T> operator*(double t, const vec3<T>& v) {
+vec3<T> operator*(T t, const vec3<T>& v) {
     return vec3<T>(t*v.m[0], t*v.m[1], t*v.m[2]);
+}
+
+template <typename T>
+vec3<T> operator*(const vec3<T>& v1, const vec3<T>& v2) {
+    return vec3<T>(v1.m[0]*v2.m[0], v1.m[1]*v2.m[1], v1.m[2]*v2.m[2]);
 }
 
 template <typename T>
