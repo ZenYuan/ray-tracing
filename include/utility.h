@@ -30,6 +30,11 @@ inline pzyy::point randomPoint() {
     return identity(randomPointSphere());
 }
 
+//degree to radius
+inline double degreeToRadius(double degree) {
+    return degree * M_PI/180.0;
+}
+
 
 
 #endif

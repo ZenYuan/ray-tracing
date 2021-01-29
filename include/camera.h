@@ -7,23 +7,29 @@
 namespace pzyy {
 class camera {
  public:
-    camera() {
+    //vfov视角的度数
+    camera(double vfov, double aspect_ratio, const point& lookfrom, const vec3f& lookat, const vec3f& upTemp) {
         // Image
-        double aspect_ratio = 16.0f/9.0f;
-        int viewport_height = 2;
+        int focus = 5;
+        double h = std::tan(degreeToRadius(vfov)/2) * focus;
+        int viewport_height = 2 * h;
         int viewport_width = static_cast<int>(viewport_height * aspect_ratio);
-        int focus = 1; 
 
-        origin = point(0, 0, 0);
-        vertical = point(0, viewport_height, 0);
-        horizontal = point(viewport_width, 0, 0);
-        low_left_conor = origin - horizontal/2.0 - vertical/2.0 - pzyy::vec3f(0, 0, focus);
+        //camera locl coordinate
+        auto dir = identity(lookfrom - lookat);
+        auto right = identity(cross(upTemp, dir));
+        auto up = cross(dir, right);
+
+        origin = lookfrom;
+        vertical =  up * viewport_height;
+        horizontal = right * viewport_width;
+        low_left_conor = origin - horizontal/2.0 - vertical/2.0 - dir * focus;
     }
 
     ray getRay(double u, double v) const {
-        return  ray(origin, low_left_conor + u*horizontal + v*vertical);
+        return  ray(origin, low_left_conor + u*horizontal + v*vertical - origin);
     }
-    
+
  private:
     point origin;
     point vertical;

@@ -32,7 +32,9 @@ class Vec<3, T> {
     Vec& operator=(const Vec<3, T>& vec) { for(size_t i = 0; i < 3; i++) { m[i] = vec.m[i]; }  return *this; }
  public:
     T& operator[](const int i) { return m[i];}
+    Vec& operator-() { m[0] = -m[0]; m[1] = -m[1]; m[2] = -m[2]; return *this; }
     double length() const { return std::sqrt(x*x + y*y + z*z); }
+    double lengthSquared() const { return x*x + y*y + z*z; }
     bool nearZero() { const auto s = 1e-8; if(std::fabs(x) < s && std::fabs(y) < s && std::fabs(z) < s) { return true; } return false;}
 };
 
@@ -56,7 +58,12 @@ vec3<T> operator-(const vec3<T>& vec, T val) {
 }
 
 template <typename T>
-vec3<T> operator*(const vec3<T>& vec, T val) {
+vec3<T> operator-(T val, const vec3<T>& vec) {
+    return vec3<T>{val - vec.x, val - vec.y, val - vec.z};
+}
+
+template <typename T, typename U>
+vec3<T> operator*(const vec3<T>& vec, U val) {
     return vec3<T>{vec.x * val, vec.y * val, vec.z * val};
 }
 
@@ -96,7 +103,7 @@ T dot(const vec3<T>& vec_l, const vec3<T>& vec_r) {
 }
 
 template <typename T>
-vec3<T> cross(vec3<T>& u, vec3<T>& v) {
+vec3<T> cross(const vec3<T>& u, const vec3<T>& v) {
     return vec3<T>(u.m[1] * v.m[2] - u.m[2] * v.m[1],
                     u.m[2] * v.m[0] - u.m[0] * v.m[2],
                     u.m[0] * v.m[1] - u.m[1] * v.m[0]);
@@ -106,5 +113,6 @@ template <typename T>
 vec3<T> identity(const vec3<T>& vec) {
     return vec/vec.length();
 }
+
 }
 #endif

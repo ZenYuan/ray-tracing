@@ -10,7 +10,8 @@ color ray_color(const ray& r, const hitList& world, int depth) {
     }
 
     //TODO：shadow acne problem not fix
-    bool intersection = world.hitfunc(r, 0, infinity, hitRec);
+    //shadow acne problem会产生光线无限接近0，但是不为0，导致图像变黑
+    bool intersection = world.hitfunc(r, 0.001, infinity, hitRec);
     if(intersection)
     {
         ray scattered;
@@ -22,7 +23,8 @@ color ray_color(const ray& r, const hitList& world, int depth) {
         //光线全部被吸收
         return color(0, 0, 0);
     }
-    /*calculate backfround color*/
+
+    /*backfround color*/
     //identity of ray direction(-1.0 < y < 1.0)
     vec3f norm = identity(r.direction());
     double lerp = (norm.y + 1)/2.0f;
@@ -40,21 +42,23 @@ int main() {
 
     //matrial
     auto matrialGround = std::make_shared<lambertain>(color(0.8, 0.8, 0.0));
-    auto matrialCenter = std::make_shared<lambertain>(color(0.7, 0.3, 0.3));
-    auto matrialLeft = std::make_shared<Metal>(color(0.8, 0.8, 0.8));
-    auto matrialRight = std::make_shared<Metal>(color(0.8, 0.6, 0.2));
+    auto matrialCenter = std::make_shared<lambertain>(color(0.1, 0.2, 0.5));
+    //auto matrialLeft = std::make_shared<Metal>(color(0.8, 0.8, 0.8), 0.3);
+    auto matrialRight = std::make_shared<Metal>(color(0.8, 0.6, 0.2), 0.0);
+    auto matrialLeft = std::make_shared<Dielectric>(1.1);
 
     //objects
     hitList world;
     world.add(std::make_shared<sphere>(100, point(0.0, -100.5, -1.0), matrialGround));
     world.add(std::make_shared<sphere>(0.5, point(0.0, 0.0, -1.0), matrialCenter));
-    world.add(std::make_shared<sphere>(0.5, point(-1.0, 0.0, -1.0), matrialLeft));
+    world.add(std::make_shared<sphere>(-0.45, point(-1.0, 0.0, -1.0), matrialLeft));
+    //world.add(std::make_shared<sphere>(-0.4, point(-1.0, 0.0, -1.0), matrialLeft));
     world.add(std::make_shared<sphere>(0.5, point(1.0, -0.0, -1.0), matrialRight));
 
     //camera
-    camera cam;
+    camera cam(90, aspect_ratio, point(-2,2,1), point(0,0,-1), vec3f(0,1,0));
     //ray reflect times
-    int depth = 10;
+    int depth = 30;
 
     // Render
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -71,4 +75,5 @@ int main() {
             write_color(pixelColor, samplesPixel);
         }
     }
+    return 0;
 }

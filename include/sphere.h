@@ -16,20 +16,21 @@ class Matrials;
 //sphere
 class sphere: public hit {
  public:
-    sphere() {}
-    sphere(double radius, const point& center) 
-    : _radius(radius), _center(center){}
-    sphere(double radius, const point& center, const std::shared_ptr<Matrials>& matPtr) 
-    : _radius(radius), _center(center), _matPtr(matPtr) {}
+   sphere() {}
+   sphere(double radius, const point& center)
+   : _radius(radius), _center(center){}
+   sphere(double radius, const point& center, const std::shared_ptr<Matrials>& matPtr)
+   : _radius(radius), _center(center), _matPtr(matPtr) {}
  public:
-    virtual bool hitfunc(const ray& r, double tmin, double tmax, hitRecord& hitRec) const override;
+   double getRadius() const { return _radius; }
+   virtual bool hitfunc(const ray& r, double tmin, double tmax, hitRecord& hitRec) const override;
  private:
-    std::initializer_list<double> _hitSphere(const ray& r) const;
+   std::initializer_list<double> _hitSphere(const ray& r) const;
 
 private:
-    double _radius = 0;
-    point _center;
-    std::shared_ptr<Matrials> _matPtr;
+   double _radius = 0;
+   point _center;
+   std::shared_ptr<Matrials> _matPtr;
 };
 
 }

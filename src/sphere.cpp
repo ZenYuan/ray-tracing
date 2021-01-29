@@ -2,7 +2,7 @@
 
 namespace pzyy {
     std::initializer_list<double> sphere::_hitSphere(const ray& r) const {
-        //origin - center 
+        //origin - center
         vec3f co = r.orign() - _center;
         //squre root b^2-4ac
         double a = dot(r.direction(), r.direction());
@@ -21,18 +21,19 @@ namespace pzyy {
         //find nearest root
         if(!rootList.size()) { return false; }
         double root = *rootList.begin();
-        if(root < tmin || root > tmax) { 
+        if(root < tmin || root > tmax) {
             root = *(rootList.begin() + 1);
             if(root < tmin || root > tmax)
             {
                 return false;
             }
         }
-        
+
         hitRec.t = root;
         hitRec.p = r.at(root);
-        hitRec.normal = identity(hitRec.p - _center);
+        //itRec.normal = identity(hitRec.p - _center);
         hitRec.matPtr = _matPtr;
+        hitRec.setFaceNormal(r, (hitRec.p - _center)/getRadius());
         return true;
     }
 }

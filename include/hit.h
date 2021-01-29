@@ -12,7 +12,10 @@ struct hitRecord {
     double t;     //光线传播时间
     point p;      //交点
     vec3f normal;
+    bool outSide;
     std::shared_ptr<Matrials> matPtr;
+
+    void setFaceNormal(const ray& ray, vec3f normal);
 };
 
 class hit {
@@ -25,7 +28,7 @@ class hitList : public hit {
  public:
     hitList(){}
     hitList(const std::shared_ptr<hit>& object){ _objectContiner.push_back(object); }
- public:   
+ public:
     void add(const std::shared_ptr<hit>& object){ _objectContiner.push_back(object); }
     void clear(){ _objectContiner.clear(); }
     virtual bool hitfunc(const ray& r, double tmin, double tmax, hitRecord& hitRec) const override;
