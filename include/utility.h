@@ -12,7 +12,7 @@ inline double randomDouble() {
     return rand()/(RAND_MAX + 1.0);  //[0, 1)
 }
 
-inline double randomRangeDouble(int min, int max) {
+inline double randomRangeDouble(double min, double max) {
     return min + (1 - randomDouble())*max;
 }
 

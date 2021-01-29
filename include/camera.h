@@ -10,7 +10,7 @@ class camera {
     //vfov视角的度数
     camera(double vfov, double aspect_ratio, const point& lookfrom, const vec3f& lookat, const vec3f& upTemp) {
         // Image
-        int focus = 5;
+        int focus = 1;
         double h = std::tan(degreeToRadius(vfov)/2) * focus;
         int viewport_height = 2 * h;
         int viewport_width = static_cast<int>(viewport_height * aspect_ratio);

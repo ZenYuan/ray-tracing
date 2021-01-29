@@ -31,21 +31,70 @@ color ray_color(const ray& r, const hitList& world, int depth) {
     return color((1 - lerp)*color(1.0, 1.0,1.0) + lerp*color(0.5, 0.7, 1.0));
 }
 
+hitList random_scene() {
+    hitList world;
+
+    auto ground_material = std::make_shared<lambertain>(color(0.5, 0.5, 0.5));
+    world.add(std::make_shared<sphere>(1000, point(0,-1000,0), ground_material));
+
+    for (int a = -2; a < 2; a++) {
+        for (int b = -2; b < 2; b++) {
+            auto choose_mat = randomDouble();
+            point center(a + 0.9*randomDouble(), 0.2, b + 0.9*randomDouble());
+
+            if ((center - point(4, 0.2, 0)).length() > 0.9) {
+                std::shared_ptr<Matrials> sphere_material;
+
+                if (choose_mat < 0.8) {
+                    // diffuse
+                    color randomPoint(randomRangeDouble(0, 1), randomRangeDouble(0, 1), randomRangeDouble(0, 1));
+                    auto albedo = randomPoint;
+                    sphere_material = std::make_shared<lambertain>(albedo);
+                    world.add(std::make_shared<sphere>(0.2, center, sphere_material));
+                } else if (choose_mat < 0.95) {
+                    // metal
+                    color randomPoint(randomRangeDouble(0.5, 1), randomRangeDouble(0.5, 1), randomRangeDouble(0.5, 1));
+                    auto albedo = randomPoint;
+                    auto fuzz = randomRangeDouble(0, 0.5);
+                    sphere_material = std::make_shared<Metal>(albedo, fuzz);
+                    world.add(std::make_shared<sphere>(0.2, center, sphere_material));
+                } else {
+                    // glass
+                    sphere_material = std::make_shared<Dielectric>(1.5);
+                    world.add(std::make_shared<sphere>(0.2, center, sphere_material));
+                }
+            }
+        }
+    }
+
+    auto material1 = std::make_shared<Dielectric>(1.5);
+    world.add(std::make_shared<sphere>(1.0, point(0, 1, 0), material1));
+
+    auto material2 = std::make_shared<lambertain>(color(0.4, 0.2, 0.1));
+    world.add(std::make_shared<sphere>(1.0, point(-4, 1, 0), material2));
+
+    auto material3 = std::make_shared<Metal>(color(0.7, 0.6, 0.5), 0.0);
+    world.add(std::make_shared<sphere>(1.0, point(4, 1, 0), material3));
+
+    return world;
+}
+
 int main() {
     // Image
-    double aspect_ratio = 16.0f/9.0f;
-    const int image_width = 400;
+    double aspect_ratio = 3.0f/2.0f;
+    const int image_width = 1200;
     const int image_height = static_cast<int>(image_width/aspect_ratio);
 
     //samples
-    int samplesPixel = 100;
+    int samplesPixel = 500;
 
+    #if 0
     //matrial
     auto matrialGround = std::make_shared<lambertain>(color(0.8, 0.8, 0.0));
     auto matrialCenter = std::make_shared<lambertain>(color(0.1, 0.2, 0.5));
     //auto matrialLeft = std::make_shared<Metal>(color(0.8, 0.8, 0.8), 0.3);
     auto matrialRight = std::make_shared<Metal>(color(0.8, 0.6, 0.2), 0.0);
-    auto matrialLeft = std::make_shared<Dielectric>(1.1);
+    auto matrialLeft = std::make_shared<Dielectric>(1.5);
 
     //objects
     hitList world;
@@ -54,11 +103,13 @@ int main() {
     world.add(std::make_shared<sphere>(-0.45, point(-1.0, 0.0, -1.0), matrialLeft));
     //world.add(std::make_shared<sphere>(-0.4, point(-1.0, 0.0, -1.0), matrialLeft));
     world.add(std::make_shared<sphere>(0.5, point(1.0, -0.0, -1.0), matrialRight));
+    #endif
+    hitList world = random_scene();
 
     //camera
-    camera cam(90, aspect_ratio, point(-2,2,1), point(0,0,-1), vec3f(0,1,0));
+    camera cam(90, aspect_ratio, point(13,2,3), point(0,0,0), vec3f(0,1,0));
     //ray reflect times
-    int depth = 30;
+    int depth = 50;
 
     // Render
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
